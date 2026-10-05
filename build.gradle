@@ -1,0 +1,53 @@
+plugins {
+    id 'fabric-loom' version '1.8.13'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+}
+
+processResources {
+    inputs.property 'version', project.version
+    inputs.property 'loader_version', project.loader_version
+
+    // Literal placeholder substitution instead of `expand`.
+    // `expand` runs the file through Groovy's template engine, which converts the
+    // `\n` escapes inside the description into real newlines and writes invalid
+    // JSON into the jar. Replacing the placeholders as plain text leaves every
+    // other byte, escapes included, untouched.
+    filesMatching('fabric.mod.json') {
+        filter { String line ->
+            line.replace('${version}', project.version.toString())
+                 .replace('${loader_version}', project.loader_version.toString())
+        }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 8
+    it.options.encoding = 'UTF-8'
+}

@@ -1,0 +1,7 @@
+# Normalise text handling across platforms
+* text=auto
+
+# gradlew must stay LF and executable - a CRLF checkout breaks it on Linux/macOS
+gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary
